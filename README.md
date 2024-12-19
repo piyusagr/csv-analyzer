@@ -1,5 +1,4 @@
 
-```markdown
 # CSV Analyzer
 
 CSV Analyzer is a Django-based web application designed to analyze CSV files and generate statistical insights along with visualizations. This application processes numeric data and provides histogram plots for the uploaded dataset.
@@ -122,4 +121,3 @@ csv-analyzer/
 
 Contributions are welcome! Feel free to fork the repository and submit a pull request.
 
----
