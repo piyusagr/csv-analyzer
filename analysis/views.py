@@ -31,7 +31,9 @@ def upload_file(request):
     return render(request, 'upload.html', {'form': form})
 
 
-def analyze_csv(df, file_path):
+# def analyze_csv(df, file_path):
+
+
     # Basic analysis
     first_rows = df.head().to_html(classes='table table-bordered')
     summary_stats = df.describe().transpose().to_html(classes='table table-hover')
@@ -43,7 +45,7 @@ def analyze_csv(df, file_path):
     numerical_cols = df.select_dtypes(include=['number']).columns
     plots = []
     for col in numerical_cols:
-        plt.figure()
+        # plt.figure()
         sns.histplot(df[col].dropna(), kde=True)
         plt.title(f'Histogram of {col}')
         
@@ -53,6 +55,40 @@ def analyze_csv(df, file_path):
         
         plt.savefig(plot_path)
         plt.close()
+        plots.append(os.path.relpath(plot_path, MEDIA_ROOT))
+
+    return {
+        'first_rows': first_rows,
+        'summary_stats': summary_stats,
+        'missing_summary': missing_summary,
+        'plots': [os.path.join(MEDIA_URL, plot) for plot in plots]
+    }
+
+def analyze_csv(df, file_path):
+    # Basic analysis
+    first_rows = df.head().to_html(classes='table table-bordered')
+    summary_stats = df.describe().transpose().to_html(classes='table table-hover')
+
+    # Handle missing values
+    missing_summary = df.isnull().sum().to_frame(name='Missing Values').to_html(classes='table table-striped')
+
+    # Visualization: Histogram for numerical columns
+    numerical_cols = df.select_dtypes(include=['number']).columns
+    plots = []
+
+    for col in numerical_cols:
+        # Create histogram using Seaborn
+        plot = sns.histplot(data=df, x=col, kde=True)
+        plot.set_title(f'Histogram of {col}')
+
+        # Sanitize column name for file path
+        sanitized_col_name = re.sub(r'[^\w\-_\. ]', '_', col)  # Replace invalid characters with underscores
+        plot_path = os.path.join(MEDIA_ROOT, f'{sanitized_col_name}_hist.png')
+
+        # Save the figure directly via Seaborn
+        plot.get_figure().savefig(plot_path)
+        plt.close(plot.get_figure())  # Close the figure to free memory
+
         plots.append(os.path.relpath(plot_path, MEDIA_ROOT))
 
     return {
