@@ -3,6 +3,7 @@ from csv_analyzer.settings import MEDIA_ROOT, MEDIA_URL
 from .forms import CSVUploadForm
 import pandas as pd
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 from io import StringIO
@@ -87,6 +88,8 @@ def analyze_csv(df, file_path):
 
         # Save the figure directly via Seaborn
         plot.get_figure().savefig(plot_path)
+        matplotlib.use('Agg')
+
         plt.close(plot.get_figure())  # Close the figure to free memory
 
         plots.append(os.path.relpath(plot_path, MEDIA_ROOT))
